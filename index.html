@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Księga finansowa laboratorium</title>
+    <link rel="stylesheet" href="finanse.css?v=20260522-3" />
+  </head>
+  <body>
+    <main class="finance-app">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Gra analityczna</p>
+          <h1>Księga finansowa laboratorium</h1>
+          <p class="subtitle">Cyfrowa tabela przychodów i wydatków do rozgrywki ekonomicznej.</p>
+          <span class="version">Wersja 2026.05.22-3</span>
+        </div>
+        <div class="hero-total" aria-live="polite">
+          <span>Bilans ogólny</span>
+          <strong id="grandBalance">0 USD</strong>
+        </div>
+      </header>
+
+      <section class="entry-panel" aria-label="Dodawanie operacji">
+        <article class="entry-card income-card">
+          <div class="card-heading">
+            <span class="icon income-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3v18" />
+                <path d="M17 8h-7a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6H6" />
+              </svg>
+            </span>
+            <div>
+              <h2>Przychód</h2>
+              <p>Zrealizowane zlecenie.</p>
+            </div>
+          </div>
+
+          <label>
+            Dzień
+            <select id="incomeDay"></select>
+          </label>
+          <label>
+            Zlecenie
+            <select id="incomeSelect"></select>
+          </label>
+          <div class="amount-preview">
+            <span>Kwota</span>
+            <strong id="incomeAmount">0 USD</strong>
+          </div>
+          <button class="primary-action" id="addIncomeBtn" type="button">Dodaj przychód</button>
+        </article>
+
+        <article class="entry-card expense-card">
+          <div class="card-heading">
+            <span class="icon expense-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 7h12" />
+                <path d="M9 7V5a3 3 0 0 1 6 0v2" />
+                <path d="M7 7l1 14h8l1-14" />
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+              </svg>
+            </span>
+            <div>
+              <h2>Wydatek</h2>
+              <p>Zakup materiału lub urządzenia.</p>
+            </div>
+          </div>
+
+          <label>
+            Dzień
+            <select id="expenseDay"></select>
+          </label>
+          <label>
+            Pozycja
+            <select id="expenseSelect"></select>
+          </label>
+          <div class="amount-preview">
+            <span>Kwota</span>
+            <strong id="expenseAmount">0 USD</strong>
+          </div>
+          <button class="primary-action danger-action" id="addExpenseBtn" type="button">Dodaj wydatek</button>
+        </article>
+      </section>
+
+      <section class="ledger-panel" aria-label="Rejestr operacji">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Rejestr</p>
+            <h2>Operacje finansowe</h2>
+          </div>
+          <div class="toolbar">
+            <button id="exportBtn" type="button">Eksport CSV</button>
+            <button id="clearBtn" type="button">Wyczyść</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Dzień</th>
+                <th>Typ</th>
+                <th>Tytuł</th>
+                <th>Kwota</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="ledgerBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <aside class="summary-panel" aria-label="Bilans">
+        <section class="summary-card totals-card">
+          <p class="eyebrow">Podsumowanie</p>
+          <div class="metric income-metric">
+            <span>Przychody</span>
+            <strong id="totalIncome">0 USD</strong>
+          </div>
+          <div class="metric expense-metric">
+            <span>Wydatki</span>
+            <strong id="totalExpense">0 USD</strong>
+          </div>
+          <div class="metric balance-metric">
+            <span>Bilans</span>
+            <strong id="totalBalance">0 USD</strong>
+          </div>
+        </section>
+
+        <section class="summary-card">
+          <div class="panel-heading compact-heading">
+            <div>
+              <p class="eyebrow">Dni</p>
+              <h2>Bilans dzienny</h2>
+            </div>
+          </div>
+          <div class="day-balance-list" id="dailyBalances"></div>
+        </section>
+      </aside>
+    </main>
+
+    <script src="finance-data.js?v=20260522-3"></script>
+    <script src="finanse.js?v=20260522-3"></script>
+  </body>
+</html>
