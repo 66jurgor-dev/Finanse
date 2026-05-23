@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Księga finansowa laboratorium</title>
-    <link rel="stylesheet" href="finanse.css?v=20260523-12" />
+    <link rel="stylesheet" href="finanse.css?v=20260523-15" />
   </head>
   <body>
     <main class="finance-app">
@@ -13,7 +13,7 @@
           <p class="eyebrow">Gra analityczna</p>
           <h1>Księga finansowa laboratorium</h1>
           <p class="subtitle">Cyfrowa tabela przychodów i wydatków do rozgrywki ekonomicznej.</p>
-          <span class="version">Wersja 2026.05.23-12</span>
+          <span class="version">Wersja 2026.05.23-15</span>
         </div>
         <div class="hero-total" aria-live="polite">
           <span>Bilans ogólny</span>
@@ -160,16 +160,20 @@
         <section class="summary-card totals-card">
           <p class="eyebrow">Podsumowanie</p>
           <div class="metric income-metric">
-            <span>Przychody</span>
+            <span>Wpływy</span>
             <strong id="totalIncome">0 USD</strong>
           </div>
           <div class="metric expense-metric">
-            <span>Wydatki</span>
+            <span>Wypływy</span>
             <strong id="totalExpense">0 USD</strong>
           </div>
           <div class="metric balance-metric">
-            <span>Bilans</span>
+            <span>Stan konta</span>
             <strong id="totalBalance">0 USD</strong>
+          </div>
+          <div class="metric debt-metric">
+            <span>Zadłużenie</span>
+            <strong id="totalDebt">0 USD</strong>
           </div>
         </section>
 
@@ -185,7 +189,7 @@
       </aside>
     </main>
 
-    <script src="finance-data.js?v=20260523-12"></script>
-    <script src="finanse.js?v=20260523-12"></script>
+    <script src="finance-data.js?v=20260523-15"></script>
+    <script src="finanse.js?v=20260523-15"></script>
   </body>
 </html>

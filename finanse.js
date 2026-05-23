@@ -26,6 +26,7 @@ const randomEventNotice = document.querySelector("#randomEventNotice");
 const totalIncome = document.querySelector("#totalIncome");
 const totalExpense = document.querySelector("#totalExpense");
 const totalBalance = document.querySelector("#totalBalance");
+const totalDebt = document.querySelector("#totalDebt");
 const grandBalance = document.querySelector("#grandBalance");
 const addIncomeBtn = document.querySelector("#addIncomeBtn");
 const addExpenseBtn = document.querySelector("#addExpenseBtn");
@@ -72,14 +73,13 @@ function changeCurrentDay() {
     return;
   }
   financeState.currentDay = selectedDay;
+  ensureDayStarted(selectedDay);
   persist();
   render();
 }
 
 function fillIncomeSelect() {
-  const usedGrantIds = new Set(
-    entries.filter((entry) => entry.type === "income" && isGrant(entry.itemId)).map((entry) => entry.itemId),
-  );
+  const usedIncomeIds = new Set(entries.filter((entry) => entry.type === "income").map((entry) => entry.itemId));
   const startGrantTaken = hasStartGrant();
   const orderedItems = [...data.orders].sort((a, b) => {
     if (a.id === "G1") return -1;
@@ -88,10 +88,10 @@ function fillIncomeSelect() {
   });
   incomeSelect.innerHTML = orderedItems
     .map((item) => {
-      const used = isGrant(item.id) && usedGrantIds.has(item.id);
+      const used = usedIncomeIds.has(item.id);
       const lockedBeforeStart = !startGrantTaken && item.id !== "G1";
       const disabled = used || lockedBeforeStart;
-      const suffix = used ? " - wykorzystany" : "";
+      const suffix = used ? (isGrant(item.id) ? " - wykorzystany" : " - zrealizowane") : "";
       return `<option value="${item.id}" ${disabled ? "disabled" : ""}>${escapeHtml(item.name)} (${formatMoney(item.amount)})${suffix}</option>`;
     })
     .join("");
@@ -139,7 +139,7 @@ function updatePreviews() {
 
   loanBalance.textContent = formatMoney(financeState.loanPrincipal);
   takeLoanBtn.disabled = !startGrantTaken || financeState.loanPrincipal > 0;
-  repayLoanBtn.disabled = !startGrantTaken || financeState.loanPrincipal <= 0;
+  repayLoanBtn.disabled = !startGrantTaken || financeState.loanPrincipal <= 0 || balance < financeState.loanPrincipal;
 
   grandBalance.textContent = formatMoney(balance);
   grandBalance.classList.toggle("negative", balance < 0);
@@ -149,11 +149,10 @@ function addIncome() {
   const item = data.orders.find((order) => order.id === incomeSelect.value);
   if (!item) return;
   if (!hasStartGrant() && item.id !== "G1") return;
-  const grantAlreadyUsed = isGrant(item.id) && entries.some((entry) => entry.type === "income" && entry.itemId === item.id);
-  if (grantAlreadyUsed) return;
+  const alreadyBooked = entries.some((entry) => entry.type === "income" && entry.itemId === item.id);
+  if (alreadyBooked) return;
 
   const day = activeDay();
-  ensureDayStarted(day);
   entries.push(createEntry({
     day,
     type: "income",
@@ -180,13 +179,6 @@ function addExpense() {
     return;
   }
 
-  ensureDayStarted(day);
-  if (item.amount > currentBalance()) {
-    persist();
-    render();
-    return;
-  }
-
   entries.push(createEntry({
     day,
     type: "expense",
@@ -205,7 +197,6 @@ function takeLoan() {
   if (!hasStartGrant()) return;
   if (financeState.loanPrincipal > 0) return;
   const day = activeDay();
-  ensureDayStarted(day);
   financeState.loanPrincipal = LOAN_AMOUNT;
   financeState.loanStartDay = day;
   entries.push(createEntry({
@@ -223,8 +214,8 @@ function takeLoan() {
 function repayLoan() {
   if (!hasStartGrant()) return;
   if (financeState.loanPrincipal <= 0) return;
+  if (currentBalance() < financeState.loanPrincipal) return;
   const day = activeDay();
-  ensureDayStarted(day);
   const amount = financeState.loanPrincipal;
   financeState.loanPrincipal = 0;
   entries.push(createEntry({
@@ -249,7 +240,8 @@ function ensureDayStarted(day) {
 
 function applyRandomEvent(day) {
   if (!data.randomEvents?.length) return;
-  const eventPool = day <= 3 ? data.randomEvents.filter((event) => Number(event.amount) > 0) : data.randomEvents;
+  if (day === 1) return;
+  const eventPool = day <= 4 ? data.randomEvents.filter((event) => Number(event.amount) > 0) : data.randomEvents;
   const event = eventPool[Math.floor(Math.random() * eventPool.length)];
   const signedAmount = Number(event.amount);
   const entry = createEntry({
@@ -310,15 +302,18 @@ function renderLedger() {
 
   ledgerBody.innerHTML = sorted
     .map(
-      (entry) => `
+      (entry) => {
+        const locked = isProtectedEntry(entry);
+        return `
         <tr>
           <td>Dzień ${entry.day}</td>
           <td><span class="entry-type ${entry.type}">${entryTypeLabel(entry)}</span></td>
           <td>${escapeHtml(entry.name)}</td>
           <td>${formatMoney(entryValue(entry))}</td>
-          <td><button class="remove-row" type="button" data-id="${entry.id}" aria-label="Usuń operację">×</button></td>
+          <td>${locked ? '<span class="locked-row" title="Wpis automatyczny">auto</span>' : `<button class="remove-row" type="button" data-id="${entry.id}" aria-label="Usuń operację">×</button>`}</td>
         </tr>
-      `,
+      `;
+      },
     )
     .join("");
 
@@ -334,13 +329,19 @@ function renderLedger() {
 function renderSummary() {
   const positive = entries.reduce((sum, entry) => sum + Math.max(0, entryValue(entry)), 0);
   const negative = entries.reduce((sum, entry) => sum + Math.abs(Math.min(0, entryValue(entry))), 0);
+  const cashIn = entries
+    .filter((entry) => entry.type !== "loan-in")
+    .reduce((sum, entry) => sum + Math.max(0, entryValue(entry)), 0);
+  const cashOut = entries.reduce((sum, entry) => sum + Math.abs(Math.min(0, entryValue(entry))), 0);
   const balance = positive - negative;
 
-  totalIncome.textContent = formatMoney(positive);
-  totalExpense.textContent = formatMoney(negative);
+  totalIncome.textContent = formatMoney(cashIn);
+  totalExpense.textContent = formatMoney(cashOut);
   totalBalance.textContent = formatMoney(balance);
+  totalDebt.textContent = formatMoney(financeState.loanPrincipal);
   grandBalance.textContent = formatMoney(balance);
   totalBalance.classList.toggle("negative", balance < 0);
+  totalDebt.classList.toggle("negative", financeState.loanPrincipal > 0);
   grandBalance.classList.toggle("negative", balance < 0);
 
   dailyBalances.innerHTML = DAYS.map((day) => {
@@ -489,6 +490,10 @@ function entryOrder(entry) {
     income: 4,
     expense: 5,
   }[entry.type] ?? 9;
+}
+
+function isProtectedEntry(entry) {
+  return entry.source === "random-event" || entry.source === "loan-auto" || entry.type === "loan-in" || entry.type === "loan-payment";
 }
 
 function formatMoney(value) {
