@@ -657,5 +657,157 @@ window.financeData = {
       "amount": 1000,
       "kind": "service"
     }
+  ],
+  "randomEvents": [
+    {
+      "id": 1,
+      "name": "Zleceniodawca prosi o dodatkowy pomiar tej samej próbki",
+      "amount": 100
+    },
+    {
+      "id": 2,
+      "name": "Wykonano dodatkowy pomiar kontrolny przy tym samym stanowisku",
+      "amount": 100
+    },
+    {
+      "id": 3,
+      "name": "Zleceniodawca dopłaca za dodatkowy punkt pobierania próbki",
+      "amount": 200
+    },
+    {
+      "id": 4,
+      "name": "Wykonano dodatkowy pomiar próbki kontrolnej",
+      "amount": 100
+    },
+    {
+      "id": 5,
+      "name": "Klient zamawia prosty opis terenowy miejsca pobierania próbki",
+      "amount": 100
+    },
+    {
+      "id": 6,
+      "name": "Przy okazji wizyty pobrano dodatkową próbkę archiwalną",
+      "amount": 200
+    },
+    {
+      "id": 7,
+      "name": "Zleceniodawca dopłaca za szybsze przekazanie wyniku wstępnego",
+      "amount": 200
+    },
+    {
+      "id": 8,
+      "name": "Wykonano dodatkowy pomiar orientacyjny bez zmiany stanowiska",
+      "amount": 100
+    },
+    {
+      "id": 9,
+      "name": "Klient zleca dodatkowy pomiar w drugim punkcie tego samego obiektu",
+      "amount": 200
+    },
+    {
+      "id": 10,
+      "name": "Wykonano dodatkowy pomiar próbki procesowej",
+      "amount": 100
+    },
+    {
+      "id": 11,
+      "name": "Klient prosi o dodatkowy pomiar próbki rezerwowej",
+      "amount": 100
+    },
+    {
+      "id": 12,
+      "name": "Przy okazji zlecenia wykonano dodatkową dokumentację fotograficzną",
+      "amount": 100
+    },
+    {
+      "id": 13,
+      "name": "Zleceniodawca zamawia dodatkowy opis warunków pobierania próbki",
+      "amount": 100
+    },
+    {
+      "id": 14,
+      "name": "Wykonano dodatkowy pomiar po krótkiej stabilizacji próbki",
+      "amount": 100
+    },
+    {
+      "id": 15,
+      "name": "Klient prosi o dodatkowy pomiar w punkcie referencyjnym",
+      "amount": 200
+    },
+    {
+      "id": 16,
+      "name": "Wykonano dodatkową kontrolę tła pomiarowego",
+      "amount": 100
+    },
+    {
+      "id": 17,
+      "name": "Zleceniodawca dopłaca za pobranie próbki do późniejszej analizy",
+      "amount": 200
+    },
+    {
+      "id": 18,
+      "name": "Klient zamawia dodatkowy szybki pomiar pomocniczy",
+      "amount": 200
+    },
+    {
+      "id": 19,
+      "name": "Przy okazji wizyty wykonano dodatkową kontrolę próbki z drugiego pojemnika",
+      "amount": 200
+    },
+    {
+      "id": 20,
+      "name": "Zleceniodawca prosi o dodatkowe sprawdzenie próbki po przygotowaniu",
+      "amount": 200
+    },
+    {
+      "id": 21,
+      "name": "Wykonano dodatkowy pomiar porównawczy względem próbki archiwalnej",
+      "amount": 200
+    },
+    {
+      "id": 22,
+      "name": "Konieczna wymiana uszczelki w układzie pobierania próbki",
+      "amount": -300
+    },
+    {
+      "id": 23,
+      "name": "Uszkodzenie przewodu sygnałowego podczas pracy w terenie",
+      "amount": -300
+    },
+    {
+      "id": 24,
+      "name": "Zagubienie próbek wymaga ponownego pobierania",
+      "amount": -300
+    },
+    {
+      "id": 25,
+      "name": "Łasica ukradła worki Tedlara",
+      "amount": -300
+    },
+    {
+      "id": 26,
+      "name": "Konieczna wymiana akumulatora w urządzeniu terenowym",
+      "amount": -300
+    },
+    {
+      "id": 27,
+      "name": "Konieczność zakupu CRM",
+      "amount": -300
+    },
+    {
+      "id": 28,
+      "name": "Awaria chłodzenia transportowego próbek wymaga interwencyjnego serwisu",
+      "amount": -300
+    },
+    {
+      "id": 29,
+      "name": "Uszkodzenie pompy podczas pobierania próbki",
+      "amount": -500
+    },
+    {
+      "id": 30,
+      "name": "Utrata części próbek przez nieszczelny pojemnik transportowy",
+      "amount": -500
+    }
   ]
 };
