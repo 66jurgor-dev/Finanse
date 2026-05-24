@@ -466,7 +466,7 @@ function renderInvoiceCodeState(order, forceError = false) {
     invoiceCodeInput.disabled = true;
     invoiceCodeInput.value = "";
     invoiceCodeInput.classList.remove("invalid");
-    invoiceCodeFeedback.textContent = "Kod faktury nie jest wymagany dla grantów.";
+    invoiceCodeFeedback.textContent = "Kod faktury nie jest wymagany dla tej pozycji.";
     invoiceCodeFeedback.classList.remove("error");
     return;
   }

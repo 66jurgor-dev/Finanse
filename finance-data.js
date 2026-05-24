@@ -91,6 +91,12 @@ window.financeData = {
       "invoiceCode": "368"
     },
     {
+      "id": "E16",
+      "name": "E16 - Oznaczenie azotu amonowego w wodzie powierzchniowej – rzeka Biała",
+      "amount": 6400,
+      "invoiceCode": "572"
+    },
+    {
       "id": "E17",
       "name": "E17 - Oznaczenie ołowiu w glebie z terenu zielonego – park miejski Kraków",
       "amount": 8700,
@@ -224,22 +230,26 @@ window.financeData = {
     {
       "id": "G2",
       "name": "Grant po zleceniach z CX-401",
-      "amount": 7000
+      "amount": 7000,
+      "invoiceCode": "314"
     },
     {
       "id": "G3",
       "name": "Grant po zleceniach z UV–Vis",
-      "amount": 40000
+      "amount": 40000,
+      "invoiceCode": "586"
     },
     {
       "id": "G4",
       "name": "Grant po zleceniach z AAS / FTIR",
-      "amount": 55000
+      "amount": 55000,
+      "invoiceCode": "769"
     },
     {
       "id": "G5",
       "name": "Grant po zleceniach z ICP-OES",
-      "amount": 90000
+      "amount": 90000,
+      "invoiceCode": "431"
     }
   ],
   "expenses": [
@@ -463,6 +473,12 @@ window.financeData = {
       "id": "S1",
       "name": "Szkolenie",
       "amount": 1000,
+      "kind": "service"
+    },
+    {
+      "id": "S2",
+      "name": "Kurier",
+      "amount": 200,
       "kind": "service"
     }
   ],
@@ -691,6 +707,12 @@ window.financeData = {
       "id": "S1",
       "name": "Szkolenie",
       "amount": 1000,
+      "kind": "service"
+    },
+    {
+      "id": "S2",
+      "name": "Kurier",
+      "amount": 200,
       "kind": "service"
     }
   ],
