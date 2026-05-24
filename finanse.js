@@ -14,6 +14,14 @@ const money = new Intl.NumberFormat("pl-PL", {
   maximumFractionDigits: 0,
 });
 
+function expenseDisplayName(item) {
+  if (item?.kind === "material") {
+    const number = String(item.id ?? "").match(/\d+/)?.[0];
+    return number ? `${number}. ${item.name}` : item.name;
+  }
+  return item?.name ?? "";
+}
+
 const currentDaySelect = document.querySelector("#currentDay");
 const incomeSelect = document.querySelector("#incomeSelect");
 const expenseSelect = document.querySelector("#expenseSelect");
@@ -115,7 +123,7 @@ function fillExpenseSelect() {
     return `
       <label class="expense-choice ${purchased ? "disabled" : ""}">
         <input type="checkbox" value="${item.id}" ${checked ? "checked" : ""} ${purchased ? "disabled" : ""} />
-        <span>${prefix}: ${escapeHtml(item.name)} (${formatMoney(item.amount)})${suffix}</span>
+        <span>${prefix}: ${escapeHtml(expenseDisplayName(item))} (${formatMoney(item.amount)})${suffix}</span>
       </label>
     `;
   };
@@ -203,7 +211,7 @@ function addExpense() {
       day,
       type: "expense",
       itemId: item.id,
-      name: item.name,
+      name: expenseDisplayName(item),
       category: item.kind,
       amount: item.amount,
       signedAmount: -item.amount,
