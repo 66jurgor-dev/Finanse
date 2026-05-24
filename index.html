@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Księga finansowa laboratorium</title>
-    <link rel="stylesheet" href="finanse.css?v=20260523-15" />
+    <link rel="stylesheet" href="finanse.css?v=20260524-4" />
   </head>
   <body>
     <main class="finance-app">
@@ -13,7 +13,7 @@
           <p class="eyebrow">Gra analityczna</p>
           <h1>Księga finansowa laboratorium</h1>
           <p class="subtitle">Cyfrowa tabela przychodów i wydatków do rozgrywki ekonomicznej.</p>
-          <span class="version">Wersja 2026.05.23-15</span>
+          <span class="version">Wersja 2026.05.24-4</span>
         </div>
         <div class="hero-total" aria-live="polite">
           <span>Bilans ogólny</span>
@@ -65,6 +65,11 @@
             <span>Kwota</span>
             <strong id="incomeAmount">0 USD</strong>
           </div>
+          <label>
+            Kod faktury
+            <input id="invoiceCodeInput" type="text" inputmode="numeric" maxlength="3" placeholder="Kod od prowadzącego" autocomplete="off" />
+          </label>
+          <div class="code-feedback" id="invoiceCodeFeedback">Kod wymagany dla zleceń, granty księgują się bez kodu.</div>
           <button class="primary-action" id="addIncomeBtn" type="button">Dodaj przychód</button>
         </article>
 
@@ -86,8 +91,8 @@
           </div>
 
           <label>
-            Pozycja
-            <select id="expenseSelect"></select>
+            Pozycje (można wybrać kilka)
+            <div class="expense-choice-list" id="expenseSelect"></div>
           </label>
           <div class="amount-preview">
             <span>Kwota</span>
@@ -164,7 +169,7 @@
             <strong id="totalIncome">0 USD</strong>
           </div>
           <div class="metric expense-metric">
-            <span>Wypływy</span>
+            <span>Wydatki</span>
             <strong id="totalExpense">0 USD</strong>
           </div>
           <div class="metric balance-metric">
@@ -189,7 +194,7 @@
       </aside>
     </main>
 
-    <script src="finance-data.js?v=20260523-15"></script>
-    <script src="finanse.js?v=20260523-15"></script>
+    <script src="finance-data.js?v=20260524-4"></script>
+    <script src="finanse.js?v=20260524-4"></script>
   </body>
 </html>

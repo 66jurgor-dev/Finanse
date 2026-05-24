@@ -17,6 +17,8 @@ const money = new Intl.NumberFormat("pl-PL", {
 const currentDaySelect = document.querySelector("#currentDay");
 const incomeSelect = document.querySelector("#incomeSelect");
 const expenseSelect = document.querySelector("#expenseSelect");
+const invoiceCodeInput = document.querySelector("#invoiceCodeInput");
+const invoiceCodeFeedback = document.querySelector("#invoiceCodeFeedback");
 const incomeAmount = document.querySelector("#incomeAmount");
 const expenseAmount = document.querySelector("#expenseAmount");
 const loanBalance = document.querySelector("#loanBalance");
@@ -40,6 +42,7 @@ repayLoanBtn.addEventListener("click", repayLoan);
 document.querySelector("#clearBtn").addEventListener("click", clearLedger);
 document.querySelector("#exportBtn").addEventListener("click", exportCsv);
 incomeSelect.addEventListener("change", updatePreviews);
+invoiceCodeInput.addEventListener("input", updatePreviews);
 expenseSelect.addEventListener("change", updatePreviews);
 currentDaySelect.addEventListener("change", changeCurrentDay);
 
@@ -103,39 +106,51 @@ function fillIncomeSelect() {
 }
 
 function fillExpenseSelect() {
+  const selectedIds = new Set(selectedExpenseItems().map((item) => item.id));
   const purchasedIds = new Set(entries.filter((entry) => entry.type === "expense").map((entry) => entry.itemId));
   const optionFor = (item, prefix) => {
     const purchased = purchasedIds.has(item.id);
+    const checked = selectedIds.has(item.id) && !purchased;
     const suffix = purchased ? " - zakupione" : "";
-    return `<option value="${item.id}" ${purchased ? "disabled" : ""}>${prefix}: ${escapeHtml(item.name)} (${formatMoney(item.amount)})${suffix}</option>`;
+    return `
+      <label class="expense-choice ${purchased ? "disabled" : ""}">
+        <input type="checkbox" value="${item.id}" ${checked ? "checked" : ""} ${purchased ? "disabled" : ""} />
+        <span>${prefix}: ${escapeHtml(item.name)} (${formatMoney(item.amount)})${suffix}</span>
+      </label>
+    `;
   };
 
-  const devices = data.devices.map((item) => optionFor(item, "Urządzenie")).join("");
-  const materials = data.materials.map((item) => optionFor(item, "Materiał")).join("");
-  const services = (data.services ?? []).map((item) => optionFor(item, "Usługa")).join("");
-
-  expenseSelect.innerHTML = `
-    <optgroup label="Urządzenia">${devices}</optgroup>
-    <optgroup label="Materiały">${materials}</optgroup>
-    <optgroup label="Usługi">${services}</optgroup>
+  const groupFor = (label, items, prefix) => `
+    <div class="expense-choice-group">
+      <strong>${label}</strong>
+      ${items.map((item) => optionFor(item, prefix)).join("")}
+    </div>
   `;
 
-  const firstAvailable = [...expenseSelect.options].find((option) => !option.disabled);
-  expenseSelect.disabled = !firstAvailable;
-  if (firstAvailable) expenseSelect.value = firstAvailable.value;
+  expenseSelect.innerHTML = `
+    ${groupFor("Urządzenia", data.devices, "Urządzenie")}
+    ${groupFor("Materiały", data.materials, "Materiał")}
+    ${groupFor("Usługi", data.services ?? [], "Usługa")}
+  `;
+
+  expenseSelect.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+    checkbox.addEventListener("change", updatePreviews);
+  });
 }
 
 function updatePreviews() {
   const income = data.orders.find((item) => item.id === incomeSelect.value);
-  const expense = data.expenses.find((item) => item.id === expenseSelect.value);
+  const selectedExpenses = selectedExpenseItems();
+  const expenseTotal = selectedExpenses.reduce((sum, item) => sum + item.amount, 0);
   const balance = currentBalance();
-  const hasFunds = !expense || expense.amount <= balance;
+  const hasFunds = selectedExpenses.length > 0 && expenseTotal <= balance;
   const startGrantTaken = hasStartGrant();
 
   incomeAmount.textContent = formatMoney(income?.amount ?? 0);
-  expenseAmount.textContent = formatMoney(expense?.amount ?? 0);
+  renderInvoiceCodeState(income);
+  expenseAmount.textContent = formatMoney(expenseTotal);
   expenseAmount.classList.remove("negative");
-  addExpenseBtn.disabled = !startGrantTaken || expenseSelect.disabled || !hasFunds;
+  addExpenseBtn.disabled = !startGrantTaken || selectedExpenses.length === 0 || !hasFunds;
 
   loanBalance.textContent = formatMoney(financeState.loanPrincipal);
   takeLoanBtn.disabled = !startGrantTaken || financeState.loanPrincipal > 0;
@@ -149,6 +164,10 @@ function addIncome() {
   const item = data.orders.find((order) => order.id === incomeSelect.value);
   if (!item) return;
   if (!hasStartGrant() && item.id !== "G1") return;
+  if (!isInvoiceCodeValid(item)) {
+    renderInvoiceCodeState(item, true);
+    return;
+  }
   const alreadyBooked = entries.some((entry) => entry.type === "income" && entry.itemId === item.id);
   if (alreadyBooked) return;
 
@@ -161,6 +180,7 @@ function addIncome() {
     amount: item.amount,
     signedAmount: item.amount,
   }));
+  invoiceCodeInput.value = "";
 
   persist();
   render();
@@ -168,26 +188,27 @@ function addIncome() {
 
 function addExpense() {
   if (!hasStartGrant()) return;
-  const item = data.expenses.find((expense) => expense.id === expenseSelect.value);
-  if (!item) return;
-  const alreadyPurchased = entries.some((entry) => entry.type === "expense" && entry.itemId === item.id);
-  if (alreadyPurchased) return;
+  const selectedExpenses = selectedExpenseItems();
+  if (!selectedExpenses.length) return;
 
   const day = activeDay();
-  if (item.amount > currentBalance()) {
+  const total = selectedExpenses.reduce((sum, item) => sum + item.amount, 0);
+  if (total > currentBalance()) {
     updatePreviews();
     return;
   }
 
-  entries.push(createEntry({
-    day,
-    type: "expense",
-    itemId: item.id,
-    name: item.name,
-    category: item.kind,
-    amount: item.amount,
-    signedAmount: -item.amount,
-  }));
+  for (const item of selectedExpenses) {
+    entries.push(createEntry({
+      day,
+      type: "expense",
+      itemId: item.id,
+      name: item.name,
+      category: item.kind,
+      amount: item.amount,
+      signedAmount: -item.amount,
+    }));
+  }
 
   persist();
   render();
@@ -425,6 +446,40 @@ function rebuildLoanState() {
 
 function currentBalance() {
   return entries.reduce((sum, entry) => sum + entryValue(entry), 0);
+}
+
+function selectedExpenseItems() {
+  if (!expenseSelect) return [];
+  const purchasedIds = new Set(entries.filter((entry) => entry.type === "expense").map((entry) => entry.itemId));
+  return [...expenseSelect.querySelectorAll('input[type="checkbox"]:checked')]
+    .map((checkbox) => data.expenses.find((expense) => expense.id === checkbox.value))
+    .filter((item) => item && !purchasedIds.has(item.id));
+}
+
+function isInvoiceCodeValid(order) {
+  if (!order?.invoiceCode) return true;
+  return invoiceCodeInput.value.trim() === order.invoiceCode;
+}
+
+function renderInvoiceCodeState(order, forceError = false) {
+  if (!order?.invoiceCode) {
+    invoiceCodeInput.disabled = true;
+    invoiceCodeInput.value = "";
+    invoiceCodeInput.classList.remove("invalid");
+    invoiceCodeFeedback.textContent = "Kod faktury nie jest wymagany dla grantów.";
+    invoiceCodeFeedback.classList.remove("error");
+    return;
+  }
+
+  invoiceCodeInput.disabled = false;
+  const typed = invoiceCodeInput.value.trim();
+  const valid = typed === order.invoiceCode;
+  const shouldShowError = forceError || (typed.length === 3 && !valid);
+  invoiceCodeInput.classList.toggle("invalid", shouldShowError);
+  invoiceCodeFeedback.textContent = shouldShowError
+    ? "Niepoprawny kod faktury. Poproś prowadzącego o potwierdzenie realizacji zlecenia."
+    : "Wpisz trzycyfrowy kod faktury zatwierdzony przez prowadzącego.";
+  invoiceCodeFeedback.classList.toggle("error", shouldShowError);
 }
 
 function activeDay() {
