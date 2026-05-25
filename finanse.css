@@ -518,7 +518,14 @@ th:nth-child(4) {
   color: var(--rose);
 }
 
+.asset-metric strong,
+.net-worth-metric strong {
+  color: var(--ink);
+}
+
 .balance-metric strong.negative,
+.asset-metric strong.negative,
+.net-worth-metric strong.negative,
 .hero-total strong.negative {
   color: var(--rose);
 }

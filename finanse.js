@@ -22,6 +22,10 @@ function expenseDisplayName(item) {
   return item?.name ?? "";
 }
 
+function canRepeatExpense(item) {
+  return item?.id === "S2";
+}
+
 const currentDaySelect = document.querySelector("#currentDay");
 const incomeSelect = document.querySelector("#incomeSelect");
 const expenseSelect = document.querySelector("#expenseSelect");
@@ -36,6 +40,8 @@ const randomEventNotice = document.querySelector("#randomEventNotice");
 const totalIncome = document.querySelector("#totalIncome");
 const totalExpense = document.querySelector("#totalExpense");
 const totalBalance = document.querySelector("#totalBalance");
+const companyAssets = document.querySelector("#companyAssets");
+const netWorth = document.querySelector("#netWorth");
 const totalDebt = document.querySelector("#totalDebt");
 const grandBalance = document.querySelector("#grandBalance");
 const addIncomeBtn = document.querySelector("#addIncomeBtn");
@@ -117,7 +123,7 @@ function fillExpenseSelect() {
   const selectedIds = new Set(selectedExpenseItems().map((item) => item.id));
   const purchasedIds = new Set(entries.filter((entry) => entry.type === "expense").map((entry) => entry.itemId));
   const optionFor = (item, prefix) => {
-    const purchased = purchasedIds.has(item.id);
+    const purchased = purchasedIds.has(item.id) && !canRepeatExpense(item);
     const checked = selectedIds.has(item.id) && !purchased;
     const suffix = purchased ? " - zakupione" : "";
     return `
@@ -358,18 +364,27 @@ function renderLedger() {
 function renderSummary() {
   const positive = entries.reduce((sum, entry) => sum + Math.max(0, entryValue(entry)), 0);
   const negative = entries.reduce((sum, entry) => sum + Math.abs(Math.min(0, entryValue(entry))), 0);
+  const ownedAssets = entries
+    .filter((entry) => entry.type === "expense" && (entry.category === "device" || entry.category === "material"))
+    .reduce((sum, entry) => sum + entry.amount, 0);
   const cashIn = entries
     .filter((entry) => entry.type !== "loan-in")
     .reduce((sum, entry) => sum + Math.max(0, entryValue(entry)), 0);
   const cashOut = entries.reduce((sum, entry) => sum + Math.abs(Math.min(0, entryValue(entry))), 0);
   const balance = positive - negative;
+  const companyAssetValue = balance + ownedAssets;
+  const netWorthValue = companyAssetValue - financeState.loanPrincipal;
 
   totalIncome.textContent = formatMoney(cashIn);
   totalExpense.textContent = formatMoney(cashOut);
   totalBalance.textContent = formatMoney(balance);
+  companyAssets.textContent = formatMoney(companyAssetValue);
+  netWorth.textContent = formatMoney(netWorthValue);
   totalDebt.textContent = formatMoney(financeState.loanPrincipal);
   grandBalance.textContent = formatMoney(balance);
   totalBalance.classList.toggle("negative", balance < 0);
+  companyAssets.classList.toggle("negative", companyAssetValue < 0);
+  netWorth.classList.toggle("negative", netWorthValue < 0);
   totalDebt.classList.toggle("negative", financeState.loanPrincipal > 0);
   grandBalance.classList.toggle("negative", balance < 0);
 
@@ -461,7 +476,7 @@ function selectedExpenseItems() {
   const purchasedIds = new Set(entries.filter((entry) => entry.type === "expense").map((entry) => entry.itemId));
   return [...expenseSelect.querySelectorAll('input[type="checkbox"]:checked')]
     .map((checkbox) => data.expenses.find((expense) => expense.id === checkbox.value))
-    .filter((item) => item && !purchasedIds.has(item.id));
+    .filter((item) => item && (!purchasedIds.has(item.id) || canRepeatExpense(item)));
 }
 
 function isInvoiceCodeValid(order) {
